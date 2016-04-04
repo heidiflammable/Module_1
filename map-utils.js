@@ -84,6 +84,7 @@ adjustedMapCenter.lng = round(adjustedMapCenter.lng, 6)
 return adjustedMapCenter      
 }
 var latLngAreDifferent = function (firstLoc, secondLoc) {
+var distance;
 var firstLat = parseFloat((firstLoc.lat || firstLoc.latitude).toFixed(6))
 var firstLng = parseFloat((firstLoc.lng || firstLoc.longitude).toFixed(6))
 var secondLat = parseFloat((secondLoc.lat || secondLoc.latitude).toFixed(6))
