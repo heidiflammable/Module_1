@@ -1,31 +1,23 @@
+'use strict';
+
 var EARTH_RADIUS = 6371;
 var TILE_SIZE = 256;
 var tilePixelCenter = TILE_SIZE / 2;
 var pixelsPerLngDegree = TILE_SIZE / 360;
 var pixelsPerLngRadian = TILE_SIZE / (2 * Math.PI);
-var google;
-var round;
-var result;
-var module;
-
-
-
 var degreesToRadians = function (degrees) {
   return (degrees * Math.PI) / 180;
 };
-
 var radiansToDegrees = function (radians) {
   return radians / (Math.PI / 180);
 };
-
 var getDistance = function (posA, posB) {
   var startLat = degreesToRadians(posA.lat || posA.latitude);
   var startLng = degreesToRadians(posA.lng || posA.longitude);
   var endLat = degreesToRadians(posB.lat || posB.latitude);
   var endLng = degreesToRadians(posB.lng || posB.longitude);
-  var partialResult = Math.sin(startLat) * Math.sin(endLat) + Math.cos(startLat
-    ) * Math.cos(endLat) * Math.cos(startLng - endLng);
-
+  var partialResult = Math.sin(startLat) * Math.sin(endLat) +
+    Math.cos(startLat) * Math.cos(endLat) * Math.cos(startLng - endLng);
   var distance = Math.acos(Math.min(partialResult, 1)) * EARTH_RADIUS;
 
   return Number(distance.toFixed(3));
@@ -36,19 +28,14 @@ var getRadiusLatLng = function (latLng, radius) {
   var startLng = degreesToRadians(latLng.lng);
   var dist = parseFloat(radius) / (EARTH_RADIUS * 1000);
   var destAng = degreesToRadians(0);
-
-  var destLat = Math.asin(Math.sin(startLat) * Math.cos(dist
-    ) + Math.cos(startLat) * Math.sin(dist) * Math.cos(destAng));
-
-  var destLng = ((startLng + Math.atan2(Math.sin(destAng) * Math.sin(dist
-    ) * Math.cos(startLat), Math.cos(dist) - Math.sin(startLat
-    ) * Math.sin(destLat))) * 180) / Math.PI;
-  destLat = (destLat * 180) / Math.PI;
-
+  var destLat = Math.asin(Math.sin(startLat) * Math.cos(dist) +
+    Math.cos(startLat) * Math.sin(dist) * Math.cos(destAng));
+  var destLng = ((startLng + Math.atan2(Math.sin(destAng) *
+    Math.sin(dist) * Math.cos(startLat), Math.cos(dist) - Math.sin(startLat) *
+    Math.sin(destLat))) * 180) / Math.PI;destLat = (destLat * 180) / Math.PI;
 
   return { lat: destLat, lng: destLng };
 };
-
 var getPointFromLatLng = function (latLng, opts) {
   opts = opts || { asPlainObject: false };
   var siny = Math.max(Math.sin(degreesToRadians(latLng.lat)), -0.9999);
@@ -60,7 +47,6 @@ var getPointFromLatLng = function (latLng, opts) {
 
   return new google.maps.Point(x, y);
 };
-
 var getLatLngFromPoint = function (point) {
   var lng = (point.x - tilePixelCenter) / pixelsPerLngDegree;
   var latRadians = (point.y - tilePixelCenter) / -pixelsPerLngRadian;
@@ -68,7 +54,6 @@ var getLatLngFromPoint = function (point) {
 
   return { lat: lat, lng: lng };
 };
-
 var getFormattedPlaceName = function (placeObj) {
   if (!placeObj.formatted_address) {
     return null;
@@ -83,9 +68,13 @@ var getFormattedPlaceName = function (placeObj) {
   }
 
   return firstPart + childNodes
-  .filter(function (node) { return node.className !== 'postal-code';})
-  .map(function (node) { return node.textContent;})
-  .join(', ');
+    .filter(function (node) {
+      return node.className !== 'postal-code';
+    })
+    .map(function (node) {
+      return node.textContent;
+    })
+    .join(', ');
 };
 var getAdjustedMapCenter = function (options) {
   var mapCenter = options.mapCenter;
@@ -94,10 +83,10 @@ var getAdjustedMapCenter = function (options) {
   var reverse = options.reverse;
   var directionalOffset = reverse ? offset * -1 : offset;
   var z = Math.pow(2, mapZoom);
-
-  var point = getPointFromLatLng({ lat: result(mapCenter, 'lat'),
+  var point = getPointFromLatLng({
+    lat: result(mapCenter, 'lat'),
     lng: result(mapCenter, 'lng')
-}, { asPlainObject: true });
+  }, { asPlainObject: true });
   var adjustedMapCenter = getLatLngFromPoint({
     x: point.x,
     y: point.y + (directionalOffset / 2) / z
@@ -107,9 +96,7 @@ var getAdjustedMapCenter = function (options) {
 
   return adjustedMapCenter;
 };
-
 var latLngAreDifferent = function (firstLoc, secondLoc) {
-
   var firstLat = parseFloat((firstLoc.lat || firstLoc.latitude).toFixed(6));
   var firstLng = parseFloat((firstLoc.lng || firstLoc.longitude).toFixed(6));
   var secondLat = parseFloat((secondLoc.lat || secondLoc.latitude).toFixed(6));
@@ -120,7 +107,6 @@ var latLngAreDifferent = function (firstLoc, secondLoc) {
 
   return false;
 };
-
 var getAdjustedPositionFromMapInstance = function (instance, offset) {
   var zoomLevel = instance.getZoom();
   var center = instance.getCenter();
@@ -141,6 +127,7 @@ var getAdjustedPositionFromMapInstance = function (instance, offset) {
 
   return response;
 };
+
 module.exports = {
   getAdjustedPositionFromMapInstance: getAdjustedPositionFromMapInstance,
   getDistance: getDistance,
